@@ -1,0 +1,53 @@
+ def importarDatos(self):
+        try:
+
+            filename = var.dlgabrir.getOpenFileName(None, 'Importar datos','', '*.xls;;All Files(*)')
+            if var.dlgabrir.accept and filename[0] != '':
+                file= filename[0]
+                documento = xlrd.open_workbook(file)
+                datos = documento.sheet_by_index(0)
+                filas = datos.nrows
+                columnas = datos.ncols
+                dniInvalido=False
+                for i in range(filas):
+                    if i==0:
+                        pass
+                    else:
+                        new =[]
+                        for j in range(columnas):
+                            '''if j==1:
+                                dato = xlrd.xldate_as_datetime(datos.cell_value(i,j), documento.datemode)
+                                dato = dato.strftime('%d/%m/%Y')
+                                new.append(str(dato))
+                            else:
+                            '''
+                            new.append(str(datos.cell_value(i,j)))
+                        if drivers.Drivers.validarDNI2(str(new[1])):
+                            if str(new[11])!="":
+                                conexion.Conexion.guardardri(new[1:], True)
+                            else:
+                                conexion.Conexion.guardardri(new[1:])
+                        else:
+                            dniInvalido=True
+
+                mbox = QtWidgets.QMessageBox()
+                mbox.setWindowTitle('Aviso')
+                mbox.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                mbox.setText(' Importación de datos realizada ')
+                mbox.exec()
+                if dniInvalido:
+                    mbox = QtWidgets.QMessageBox()
+                    mbox.setWindowTitle('Aviso')
+                    mbox.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    mbox.setText(' Alguno de los DNI es incorrecto ')
+                    mbox.exec()
+
+                conexion.Conexion.mostrarDrivers(self=None)
+
+        except Exception as error:
+            print(error)
+            mbox = QtWidgets.QMessageBox()
+            mbox.setWindowTitle('Aviso')
+            mbox.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            mbox.setText(' Error al importar datos hoja de cálculo ')
+            mbox.exec()
